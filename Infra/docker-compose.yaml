@@ -1,0 +1,18 @@
+version: '3.1'
+
+services:
+
+  splunk:
+    image: splunk/splunk:latest
+    container_name: splunk
+    ports:
+      - "8000:8000"   # Web UI
+      - "8088:8088"   # HEC (HTTP Event Collector)
+      - "9997:9997"   # Forwarders
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_PASSWORD: Mind27&splunk
+      SPLUNK_GENERAL_TERMS: --accept-sgt-current-at-splunk-com
+    # volumes:
+    #   - ./splunk-etc:/opt/splunk/etc
+    #   - ./splunk-var:/opt/splunk/var

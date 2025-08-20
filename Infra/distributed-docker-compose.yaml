@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  splunk-indexer:
+    image: splunk/splunk:latest
+    container_name: splunk-indexer
+    hostname: splunk-indexer
+    ports:
+      - "9997:9997"   # porta que recebe dados de forwarders
+      - "8089:8089"   # management port
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_PASSWORD: MinhaSenhaForte123
+      SPLUNK_ROLE: splunk_indexer
+    volumes:
+      - ./indexer-etc:/opt/splunk/etc
+      - ./indexer-var:/opt/splunk/var
+
+  splunk-search-head:
+    image: splunk/splunk:latest
+    container_name: splunk-search-head
+    hostname: splunk-search-head
+    ports:
+      - "8000:8000"   # interface web
+      - "8088:8088"   # HEC (caso queira usar)
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_PASSWORD: MinhaSenhaForte123
+      SPLUNK_ROLE: splunk_search_head
+    depends_on:
+      - splunk-indexer
+    volumes:
+      - ./search-etc:/opt/splunk/etc
+      - ./search-var:/opt/splunk/var
+
+  splunk-forwarder:
+    image: splunk/universalforwarder:latest
+    container_name: splunk-forwarder
+    hostname: splunk-forwarder
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_PASSWORD: MinhaSenhaForte123
+      SPLUNK_ROLE: splunk_forwarder
+      SPLUNK_INDEXER_URL: splunk-indexer:9997
+    depends_on:
+      - splunk-indexer
+    volumes:
+      - ./forwarder-etc:/opt/splunkforwarder/etc
+      - ./forwarder-var:/opt/splunkforwarder/var
